@@ -1,0 +1,24 @@
+{
+    "manifest_version": 3,
+    "name": "RBN Pal",
+    "description": "A set of utilites for reversebeacon.net.",
+    "version": "0.1.0",
+    "action": {
+        "default_icon": "assets/icon.png"
+    },
+    "content_scripts": [
+        {
+            "js": [
+                "dist/content.js",
+                "node_modules/plotly.js/dist/plotly-strict.min.js"
+            ],
+            "matches": ["https://www.reversebeacon.net/main.php*"]
+        }
+    ],
+    "web_accessible_resources": [
+        {
+            "resources": ["node_modules/plotly.js/dist/plotly-strict.min.js"],
+            "matches": ["<all_urls>"]
+        }
+    ]
+}
