@@ -49,7 +49,7 @@ function main(plotly, continentSnrAvgs) {
     }
     setTimeout(() => {
         main(plotly, continentSnrAvgs);
-    }, 10000);
+    }, (continentSnrAvgs.size > 0 ? 600 : 10) * 1000);
 }
 function getOrCreateControlsDiv() {
     let div = document.getElementById("rbnpal-controls");
@@ -59,8 +59,15 @@ function getOrCreateControlsDiv() {
     div = document.createElement("div");
     div.id = "rbnpal-controls";
     const plotControlsTitle = document.createElement("h3");
-    plotControlsTitle.textContent = "Average SNR over time for:";
+    plotControlsTitle.textContent = "Average SNR over time by continent";
+    const refreshButton = document.createElement("button");
+    refreshButton.textContent = "Refresh";
     div.appendChild(plotControlsTitle);
+    div.appendChild(refreshButton);
+    refreshButton.addEventListener("click", (e) => {
+        e.preventDefault();
+        main(Plotly);
+    });
     const cluster = document.getElementById("cluster");
     cluster?.appendChild(div);
     return div;
