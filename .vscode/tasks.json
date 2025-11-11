@@ -4,10 +4,21 @@
         {
             "type": "npm",
             "script": "build",
-            "group": "build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
             "problemMatcher": [],
             "label": "npm: build",
             "detail": "tsc"
+        },
+        {
+            "type": "npm",
+            "script": "package",
+            "group": "build",
+            "problemMatcher": [],
+            "label": "npm: package",
+            "detail": "node scripts/package.js"
         }
     ]
 }

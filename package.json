@@ -3,16 +3,19 @@
     "version": "0.1.0",
     "description": "A set of utilities for reversebeacon.net",
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && npm run copy-deps",
+        "copy-deps": "node scripts/copy-deps.js",
+        "package": "node scripts/package.js",
         "watch": "tsc --watch",
         "clean": "rimraf dist"
     },
     "devDependencies": {
-        "typescript": "^5.0.0",
-        "rimraf": "^5.0.0",
         "@types/chrome": "^0.0.219",
         "@types/node": "^20.0.0",
-        "@types/plotly.js": "^1.0.0"
+        "@types/plotly.js": "^1.0.0",
+        "archiver": "^6.0.2",
+        "rimraf": "^5.0.0",
+        "typescript": "^5.0.0"
     },
     "dependencies": {
         "plotly.js": "^3.2.0"

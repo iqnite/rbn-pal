@@ -8,16 +8,16 @@
     },
     "content_scripts": [
         {
-            "js": [
-                "dist/content.js",
-                "node_modules/plotly.js/dist/plotly-strict.min.js"
-            ],
-            "matches": ["https://www.reversebeacon.net/main.php*"]
+            "js": ["dist/lib/plotly/plotly-strict.min.js", "dist/content.js"],
+            "matches": [
+                "*://reversebeacon.net/main.php*",
+                "*://www.reversebeacon.net/main.php*"
+            ]
         }
     ],
     "web_accessible_resources": [
         {
-            "resources": ["node_modules/plotly.js/dist/plotly-strict.min.js"],
+            "resources": ["dist/lib/plotly/plotly-strict.min.js"],
             "matches": ["<all_urls>"]
         }
     ]
