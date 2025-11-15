@@ -1,16 +1,50 @@
 "use strict";
 class ContinentSnrTracker {
     constructor() {
-        this.continentSnrAvgs = new Map();
+        this.snapshots = new Map();
     }
     main() {
-        const continentSnrMap = ContinentSnrTracker.extractData();
-        if (!continentSnrMap)
+        const lastData = ContinentSnrTracker.extractData();
+        if (!lastData)
             return;
+        const aggregatedData = ContinentSnrTracker.aggregateRowData(lastData);
+        const time = new Date().toLocaleTimeString();
+        const snapshot = new Map();
+        const times = Array.from(this.snapshots.keys());
+        times.push(time);
         const controlsDiv = this.getOrCreateControlsDiv();
         const continentPlotsDiv = ContinentSnrTracker.getOrCreateContinentPlotsDiv();
-        const continents = Array.from(continentSnrMap.keys()).sort();
-        for (const continent of continents) {
+        for (const continent of aggregatedData.keys()) {
+            snapshot.set(continent, new Map());
+            const traces = [];
+            for (const band of aggregatedData.get(continent).keys()) {
+                const bandSnrs = aggregatedData.get(continent).get(band);
+                if (!bandSnrs)
+                    continue;
+                const avgSnr = ContinentSnrTracker.arrayAvg(bandSnrs);
+                snapshot.get(continent).set(band, avgSnr);
+                const avgSnrs = [];
+                for (const t of this.snapshots.keys()) {
+                    const snap = this.snapshots.get(t);
+                    if (snap &&
+                        snap.has(continent) &&
+                        snap.get(continent).has(band)) {
+                        avgSnrs.push(snap.get(continent).get(band));
+                    }
+                    else {
+                        avgSnrs.push(NaN);
+                    }
+                }
+                traces.push({
+                    x: times,
+                    y: avgSnrs,
+                    type: "scatter",
+                    mode: "lines+markers",
+                    name: `${band}m`,
+                    line: { color: ContinentSnrTracker.colorBand(band) },
+                });
+                console.debug(`Continent: ${continent}, Band: ${band}, Avg SNR: ${avgSnr}`);
+            }
             let continentDiv = document.getElementById(`rbnpal-continent-snr-plot-${continent}`);
             if (!continentDiv) {
                 continentDiv =
@@ -19,29 +53,6 @@ class ContinentSnrTracker {
                 controlsDiv.appendChild(checkbox);
                 continentPlotsDiv.appendChild(continentDiv);
             }
-            const snrs = continentSnrMap.get(continent) || [];
-            const averageSnr = ContinentSnrTracker.arrayAvg(snrs);
-            if (!this.continentSnrAvgs.has(continent)) {
-                this.continentSnrAvgs.set(continent, new Map());
-            }
-            const time = new Date().toLocaleTimeString();
-            this.continentSnrAvgs.get(continent).set(time, averageSnr);
-            const continentMap = this.continentSnrAvgs.get(continent);
-            while (continentMap.size > 60) {
-                const oldestKey = continentMap.keys().next().value;
-                if (oldestKey === undefined)
-                    break;
-                continentMap.delete(oldestKey);
-            }
-            const times = Array.from(this.continentSnrAvgs.get(continent).keys());
-            const avgSnrs = Array.from(this.continentSnrAvgs.get(continent).values());
-            const trace = {
-                x: times,
-                y: avgSnrs,
-                type: "scatter",
-                mode: "lines+markers",
-                name: continent,
-            };
             const layout = {
                 title: { text: continent },
                 xaxis: { title: { text: "Time" } },
@@ -49,11 +60,19 @@ class ContinentSnrTracker {
                 automargin: true,
                 paper_bgcolor: "#fffeef",
             };
-            Plotly.newPlot(`rbnpal-continent-snr-plot-${continent}`, [trace], layout, { responsive: true });
+            Plotly.newPlot(`rbnpal-continent-snr-plot-${continent}`, traces, layout, { responsive: true });
         }
+        while (this.snapshots.size > 12) {
+            // Only keep the latest 2 hours of data
+            const oldestKey = this.snapshots.keys().next().value;
+            if (oldestKey === undefined)
+                break;
+            this.snapshots.delete(oldestKey);
+        }
+        this.snapshots.set(time, snapshot);
         setTimeout(() => {
             this.main();
-        }, (this.continentSnrAvgs.size > 0 ? 600 : 10) * 1000);
+        }, 600 * 1000);
     }
     getOrCreateControlsDiv() {
         let div = document.getElementById("rbnpal-controls");
@@ -124,13 +143,15 @@ class ContinentSnrTracker {
     static extractData() {
         const regionRegex = /(.*) - (.*) - (.*) - (.*) - (.*)/;
         const snrRegex = /([0-9]+)/;
+        const freqRegex = /([0-9]+).?[0-9]*/;
+        const seenNowRegex = /.*now.*/;
         const spotsTable = document
             .getElementById("id_spots")
             ?.querySelector("tbody");
-        const continentSnrMap = new Map();
+        const data = [];
         if (!spotsTable) {
             console.error("Spots table not found");
-            return;
+            return null;
         }
         for (const row of Array.from(spotsTable.rows)) {
             if (row.classList.contains("spots")) {
@@ -139,25 +160,97 @@ class ContinentSnrTracker {
                     continue;
                 const regionText = regionLink.title.match(regionRegex);
                 const snrText = row.children[7].textContent.match(snrRegex);
+                const freqText = row.children[4].textContent.match(freqRegex);
+                const seenText = row.children[10].textContent.match(seenNowRegex);
                 let continent = "??";
                 let snr = NaN;
+                let freq = NaN;
                 if (regionText) {
                     continent = regionText[3];
                 }
                 if (snrText) {
                     snr = Number(snrText[1]);
                 }
-                if (!continentSnrMap.has(continent)) {
-                    continentSnrMap.set(continent, []);
+                if (freqText) {
+                    freq = Number(freqText[1]);
                 }
-                continentSnrMap.get(continent).push(snr);
+                if (!seenText) {
+                    continue; // Only consider spots seen "now"
+                }
+                data.push(new DataRow(continent, freq, snr));
             }
         }
-        return continentSnrMap;
+        return data;
+    }
+    static aggregateRowData(dataRows) {
+        const continentData = new Map();
+        for (const row of dataRows) {
+            if (!continentData.has(row.continent)) {
+                continentData.set(row.continent, new Map());
+            }
+            const continentMap = continentData.get(row.continent);
+            const band = ContinentSnrTracker.matchBand(row.freq) ?? "other";
+            if (!continentMap.has(band)) {
+                continentMap.set(band, []);
+            }
+            const bandSnrs = continentMap.get(band);
+            bandSnrs.push(row.snr);
+        }
+        return continentData;
     }
     static arrayAvg(arr) {
         const sum = arr.reduce((a, b) => a + b, 0);
         return sum / arr.length;
+    }
+    static matchBand(freq) {
+        const bands = {
+            630: [470, 510],
+            160: [1800, 1900],
+            80: [3500, 3800],
+            60: [5250, 5450],
+            40: [7000, 7300],
+            30: [10100, 10150],
+            20: [14000, 14350],
+            17: [18068, 18168],
+            15: [21000, 22000],
+            12: [24890, 24990],
+            10: [28000, 30000],
+            6: [50000, 54000],
+            4: [70000, 72000],
+            2: [144000, 148000],
+        };
+        for (const [band, range] of Object.entries(bands)) {
+            if (freq >= range[0] && freq <= range[1]) {
+                return band;
+            }
+        }
+        return null;
+    }
+    static colorBand(band) {
+        const bandColors = {
+            630: "#AAAAAA",
+            160: "#ffe000",
+            80: "#093f00",
+            60: "#777777",
+            40: "#ffa500",
+            30: "#ff0000",
+            20: "#800080",
+            17: "#0000ff",
+            15: "#444444",
+            12: "#00ffff",
+            10: "#ff00ff",
+            6: "#ffc0cb",
+            4: "#a276ff",
+            2: "#92ff7f",
+        };
+        return bandColors[band] ?? "#1f77b4";
+    }
+}
+class DataRow {
+    constructor(continent, freq, snr) {
+        this.continent = continent;
+        this.freq = freq;
+        this.snr = snr;
     }
 }
 new ContinentSnrTracker().main();
