@@ -1,8 +1,16 @@
+interface SnrSnapshot {
+    timestamp: Date;
+    continent: string;
+    band: string;
+    avgSnr: number;
+}
 declare class ContinentSnrTracker {
-    snapshots: Map<string, // time
-    Map<string, // continent
-    Map<string, // band
-    number>>>;
+    private snapshots;
+    private getSnr;
+    private addSnapshot;
+    private getUniqueTimes;
+    private getUniqueContinents;
+    private getUniqueBandsForContinent;
     main(): void;
     getOrCreateControlsDiv(): HTMLElement;
     static getOrCreateContinentPlotsDiv(): HTMLElement;

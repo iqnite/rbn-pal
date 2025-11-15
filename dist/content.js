@@ -1,49 +1,63 @@
 "use strict";
 class ContinentSnrTracker {
     constructor() {
-        this.snapshots = new Map();
+        this.snapshots = [];
+    }
+    getSnr(timestamp, continent, band) {
+        return this.snapshots.find((s) => s.timestamp.getTime() === timestamp.getTime() &&
+            s.continent === continent &&
+            s.band === band)?.avgSnr;
+    }
+    addSnapshot(timestamp, continent, band, avgSnr) {
+        this.snapshots.push({ timestamp, continent, band, avgSnr });
+    }
+    getUniqueTimes() {
+        const times = new Set(this.snapshots.map((s) => s.timestamp.getTime()));
+        return Array.from(times)
+            .map((t) => new Date(t))
+            .sort((a, b) => a.getTime() - b.getTime());
+    }
+    getUniqueContinents() {
+        return Array.from(new Set(this.snapshots.map((s) => s.continent)));
+    }
+    getUniqueBandsForContinent(continent) {
+        return Array.from(new Set(this.snapshots
+            .filter((s) => s.continent === continent)
+            .map((s) => s.band)));
     }
     main() {
         const lastData = ContinentSnrTracker.extractData();
         if (!lastData)
             return;
         const aggregatedData = ContinentSnrTracker.aggregateRowData(lastData);
-        const time = new Date().toLocaleTimeString();
-        const snapshot = new Map();
-        const times = Array.from(this.snapshots.keys());
-        times.push(time);
-        const controlsDiv = this.getOrCreateControlsDiv();
-        const continentPlotsDiv = ContinentSnrTracker.getOrCreateContinentPlotsDiv();
+        const timestamp = new Date();
         for (const continent of aggregatedData.keys()) {
-            snapshot.set(continent, new Map());
-            const traces = [];
             for (const band of aggregatedData.get(continent).keys()) {
                 const bandSnrs = aggregatedData.get(continent).get(band);
                 if (!bandSnrs)
                     continue;
                 const avgSnr = ContinentSnrTracker.arrayAvg(bandSnrs);
-                snapshot.get(continent).set(band, avgSnr);
-                const avgSnrs = [];
-                for (const t of this.snapshots.keys()) {
-                    const snap = this.snapshots.get(t);
-                    if (snap &&
-                        snap.has(continent) &&
-                        snap.get(continent).has(band)) {
-                        avgSnrs.push(snap.get(continent).get(band));
-                    }
-                    else {
-                        avgSnrs.push(NaN);
-                    }
-                }
+                this.addSnapshot(timestamp, continent, band, avgSnr);
+            }
+        }
+        const times = this.getUniqueTimes();
+        const timeStrings = times.map((t) => t.toLocaleTimeString());
+        const controlsDiv = this.getOrCreateControlsDiv();
+        const continentPlotsDiv = ContinentSnrTracker.getOrCreateContinentPlotsDiv();
+        const continents = this.getUniqueContinents();
+        for (const continent of continents) {
+            const traces = [];
+            const bands = this.getUniqueBandsForContinent(continent);
+            for (const band of bands) {
+                const avgSnrs = times.map((t) => this.getSnr(t, continent, band) ?? NaN);
                 traces.push({
-                    x: times,
+                    x: timeStrings,
                     y: avgSnrs,
                     type: "scatter",
                     mode: "lines+markers",
                     name: `${band}m`,
                     line: { color: ContinentSnrTracker.colorBand(band) },
                 });
-                console.debug(`Continent: ${continent}, Band: ${band}, Avg SNR: ${avgSnr}`);
             }
             let continentDiv = document.getElementById(`rbnpal-continent-snr-plot-${continent}`);
             if (!continentDiv) {
@@ -62,17 +76,16 @@ class ContinentSnrTracker {
             };
             Plotly.newPlot(`rbnpal-continent-snr-plot-${continent}`, traces, layout, { responsive: true });
         }
-        while (this.snapshots.size > 12) {
-            // Only keep the latest 2 hours of data
-            const oldestKey = this.snapshots.keys().next().value;
-            if (oldestKey === undefined)
-                break;
-            this.snapshots.delete(oldestKey);
+        // Only keep the latest 2 hours of data (12 snapshots at 10-minute intervals)
+        const uniqueTimes = this.getUniqueTimes();
+        if (uniqueTimes.length > 12) {
+            const cutoffTime = uniqueTimes[uniqueTimes.length - 12];
+            this.snapshots = this.snapshots.filter((s) => s.timestamp.getTime() >= cutoffTime.getTime());
         }
-        this.snapshots.set(time, snapshot);
+        const nextRefreshSec = this.snapshots.length > 0 ? 600 : 1;
         setTimeout(() => {
             this.main();
-        }, 600 * 1000);
+        }, nextRefreshSec * 1000);
     }
     getOrCreateControlsDiv() {
         let div = document.getElementById("rbnpal-controls");
