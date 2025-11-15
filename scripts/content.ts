@@ -186,6 +186,31 @@ class ContinentSnrTracker {
         const sum = arr.reduce((a, b) => a + b, 0);
         return sum / arr.length;
     }
+
+    public static matchBand(freq: number): string | null {
+        const bands = {
+            630: [470, 510],
+            160: [1800, 1900],
+            80: [3500, 3800],
+            60: [5250, 5450],
+            40: [7000, 7300],
+            30: [10100, 10150],
+            20: [14000, 14350],
+            17: [18068, 18168],
+            15: [21000, 22000],
+            12: [24890, 24990],
+            10: [28000, 30000],
+            6: [50000, 54000],
+            4: [70000, 72000],
+            2: [144000, 148000],
+        };
+        for (const [band, range] of Object.entries(bands)) {
+            if (freq >= range[0] && freq <= range[1]) {
+                return band;
+            }
+        }
+        return null;
+    }
 }
 
 new ContinentSnrTracker().main();
