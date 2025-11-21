@@ -26,3 +26,7 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 4. Click on the "Load Temporary Add-on" button.
 5. Select the `manifest.json` file from the folder where you extracted the extension files.
 6. The RBN Pal extension should now be installed and active in your browser.
+
+## Usage
+
+To see the extension in action, open up [the Reverse Beacon Network's main page](https://www.reversebeacon.net/main.php). You will see that a new section has been added below the map, with plots showing the Average SNR over time by continent.
