@@ -1,10 +1,17 @@
 {
     "manifest_version": 3,
     "name": "RBN Pal",
-    "description": "A set of utilites for reversebeacon.net.",
     "version": "0.2.0",
+    "description": "A set of utilites for reversebeacon.net.",
     "action": {
-        "default_icon": "assets/icon.png"
+        "default_icon": "assets/icon128.png",
+        "default_title": "RBN Pal - Reverse Beacon Network Utilities"
+    },
+    "icons": {
+        "16": "assets/icon16.png",
+        "32": "assets/icon32.png",
+        "48": "assets/icon48.png",
+        "128": "assets/icon128.png"
     },
     "content_scripts": [
         {
