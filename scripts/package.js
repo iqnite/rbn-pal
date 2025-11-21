@@ -11,7 +11,10 @@ const filesToInclude = [
     "manifest.json",
     "dist/content.js",
     "dist/lib/plotly/plotly-strict.min.js",
-    "assets/icon.png",
+    "assets/icon16.png",
+    "assets/icon32.png",
+    "assets/icon48.png",
+    "assets/icon128.png",
     "LICENSE",
     "README.md",
 ];

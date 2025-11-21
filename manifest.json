@@ -1,7 +1,7 @@
 {
     "manifest_version": 3,
     "name": "RBN Pal",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "A set of utilites for reversebeacon.net.",
     "action": {
         "default_icon": "assets/icon128.png",
