@@ -2,6 +2,10 @@
 class ContinentSnrTracker {
     constructor() {
         this.snapshots = [];
+        this.separateByBand = true;
+        this.controlsDiv = this.getOrCreateControlsDiv();
+        this.continentPlotsDiv = ContinentSnrTracker.getOrCreateContinentPlotsDiv();
+        this.separateByBandLabel = this.createSeparateByBandCheckbox();
     }
     getSnr(timestamp, continent, band) {
         return this.snapshots.find((s) => s.timestamp.getTime() === timestamp.getTime() &&
@@ -42,30 +46,49 @@ class ContinentSnrTracker {
         }
         const times = this.getUniqueTimes();
         const timeStrings = times.map((t) => t.toLocaleTimeString());
-        const controlsDiv = this.getOrCreateControlsDiv();
-        const continentPlotsDiv = ContinentSnrTracker.getOrCreateContinentPlotsDiv();
         const continents = this.getUniqueContinents();
         for (const continent of continents) {
             const traces = [];
             const bands = this.getUniqueBandsForContinent(continent);
-            for (const band of bands) {
-                const avgSnrs = times.map((t) => this.getSnr(t, continent, band) ?? NaN);
+            if (this.separateByBand) {
+                for (const band of bands) {
+                    const avgSnrs = times.map((t) => this.getSnr(t, continent, band) ?? NaN);
+                    traces.push({
+                        x: timeStrings,
+                        y: avgSnrs,
+                        type: "scatter",
+                        mode: "lines+markers",
+                        name: `${band}m`,
+                        line: { color: ContinentSnrTracker.colorBand(band) },
+                    });
+                }
+            }
+            else {
+                // Combine all bands into a single trace
+                const allSnrs = times.map((t) => {
+                    const snrsAtTime = bands
+                        .map((b) => this.getSnr(t, continent, b))
+                        .filter((snr) => snr !== undefined);
+                    return snrsAtTime.length > 0
+                        ? ContinentSnrTracker.arrayAvg(snrsAtTime)
+                        : NaN;
+                });
                 traces.push({
                     x: timeStrings,
-                    y: avgSnrs,
+                    y: allSnrs,
                     type: "scatter",
                     mode: "lines+markers",
-                    name: `${band}m`,
-                    line: { color: ContinentSnrTracker.colorBand(band) },
+                    name: "All bands",
+                    line: { color: "#1f77b4" },
                 });
             }
             let continentDiv = document.getElementById(`rbnpal-continent-snr-plot-${continent}`);
             if (!continentDiv) {
                 continentDiv =
                     ContinentSnrTracker.createContinentDiv(continent);
-                const checkbox = ContinentSnrTracker.createContinentCheckbox(continent);
-                controlsDiv.appendChild(checkbox);
-                continentPlotsDiv.appendChild(continentDiv);
+                const checkboxLabel = ContinentSnrTracker.createContinentCheckbox(continent);
+                this.controlsDiv.appendChild(checkboxLabel);
+                this.continentPlotsDiv.appendChild(continentDiv);
             }
             const layout = {
                 title: { text: continent },
@@ -146,12 +169,30 @@ class ContinentSnrTracker {
         label.appendChild(document.createTextNode(continent));
         return label;
     }
+    createSeparateByBandCheckbox() {
+        const label = document.createElement("label");
+        label.style.marginRight = "10px";
+        const checkbox = document.createElement("input");
+        checkbox.id = `rbnpal-separate-by-band-checkbox`;
+        checkbox.type = "checkbox";
+        checkbox.checked = this.separateByBand;
+        checkbox.addEventListener("change", (e) => this.updateBandSeparation(e));
+        label.appendChild(checkbox);
+        label.appendChild(document.createTextNode("Separate by band"));
+        this.controlsDiv.appendChild(label);
+        return label;
+    }
     static updateContinentDisplay(event, continent) {
         const checkbox = event.target;
         const continentDiv = document.getElementById(`rbnpal-continent-snr-plot-${continent}`);
         if (continentDiv) {
             continentDiv.style.display = checkbox.checked ? "block" : "none";
         }
+    }
+    updateBandSeparation(event) {
+        const checkbox = event.target;
+        this.separateByBand = checkbox.checked;
+        this.main();
     }
     static extractData() {
         const regionRegex = /(.*) - (.*) - (.*) - (.*) - (.*)/;

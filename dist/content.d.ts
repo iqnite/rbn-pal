@@ -6,17 +6,23 @@ interface SnrSnapshot {
 }
 declare class ContinentSnrTracker {
     private snapshots;
+    private separateByBand;
+    private controlsDiv;
+    private continentPlotsDiv;
+    private separateByBandLabel;
     private getSnr;
     private addSnapshot;
     private getUniqueTimes;
     private getUniqueContinents;
     private getUniqueBandsForContinent;
     main(): void;
-    getOrCreateControlsDiv(): HTMLElement;
-    static getOrCreateContinentPlotsDiv(): HTMLElement;
+    getOrCreateControlsDiv(): HTMLDivElement;
+    static getOrCreateContinentPlotsDiv(): HTMLDivElement;
     static createContinentDiv(continent: string): HTMLDivElement;
     static createContinentCheckbox(continent: string): HTMLLabelElement;
+    createSeparateByBandCheckbox(): HTMLLabelElement;
     static updateContinentDisplay(event: Event, continent: string): void;
+    updateBandSeparation(event: Event): void;
     static extractData(): DataRow[] | null;
     static aggregateRowData(dataRows: DataRow[]): Map<string, // continent
     Map<string, // band
