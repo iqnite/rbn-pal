@@ -11,7 +11,7 @@
     },
     "devDependencies": {
         "@types/chrome": "^0.1.27",
-        "@types/node": "^24.10.0",
+        "@types/node": "^24.10.1",
         "@types/plotly.js": "^3.0.8",
         "archiver": "^6.0.2",
         "rimraf": "^6.1.0",
