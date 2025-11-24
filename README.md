@@ -6,6 +6,26 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 
 ## Installation
 
+### Firefox
+
+#### From Firefox Add-ons (recommended)
+
+[![Firefox Add-ons](.github/readme-images/ff-addon-badge.png)](https://addons.mozilla.org/addon/rbn-pal/)
+
+#### From ZIP
+
+It may take a few minutes for the add-on to appear in the Firefox Add-ons store. If you want to install it right away, you can do so by following these steps.
+
+> [!IMPORTANT]
+> The following method installs the extension temporarily, meaning you will need to repeat this process each time you restart Firefox.
+
+1. Go to the [latest release](https://github.com/iqnite/rbn-pal/releases/latest) and download the ZIP file from the "Assets" section.
+2. Extract the downloaded ZIP file to a folder on your computer.
+3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+4. Click on the "Load Temporary Add-on" button.
+5. Select the `manifest.json` file from the folder where you extracted the extension files.
+6. The RBN Pal extension should now be installed and active in your browser.
+
 ### Chromium-based Browsers (Chrome, Edge, Brave, etc.)
 
 1. Go to the [latest release](https://github.com/iqnite/rbn-pal/releases/latest) and download the ZIP file from the "Assets" section.
@@ -13,18 +33,6 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 3. Open your browser and navigate to `chrome://extensions/`.
 4. Look for the "Developer mode" toggle (in the top right or bottom left corner) and enable it.
 5. Click on the "Load unpacked" button and select the folder where you extracted the extension files.
-6. The RBN Pal extension should now be installed and active in your browser.
-
-### Firefox
-
-> [!IMPORTANT]
-> Firefox requires extensions to be signed by Mozilla for permanent installation. The following method installs the extension temporarily, meaning you will need to repeat this process each time you restart Firefox.
-
-1. Go to the [latest release](https://github.com/iqnite/rbn-pal/releases/latest) and download the ZIP file from the "Assets" section.
-2. Extract the downloaded ZIP file to a folder on your computer.
-3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-4. Click on the "Load Temporary Add-on" button.
-5. Select the `manifest.json` file from the folder where you extracted the extension files.
 6. The RBN Pal extension should now be installed and active in your browser.
 
 ## Usage
