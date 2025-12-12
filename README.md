@@ -1,4 +1,4 @@
-# RBN Pal
+# ![RBN Pal](assets/icon32.png) RBN Pal
 
 RBN Pal is a browser extension that enhances the user experience on the [Reverse Beacon Network](https://reversebeacon.net). It provides additional features and functionalities to improve navigation, data visualization, and overall usability.
 
@@ -22,6 +22,8 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 ## Usage
 
 To see the extension in action, open up [the Reverse Beacon Network's main page](https://www.reversebeacon.net/main.php). You will see that a new section has been added below the map, with plots showing the Average SNR over time by continent.
+
+![RBN Pal in Action](.github/readme-images/usage-screenshot.png)
 
 ## Installing from Source
 
