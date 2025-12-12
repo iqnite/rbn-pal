@@ -22,3 +22,26 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 ## Usage
 
 To see the extension in action, open up [the Reverse Beacon Network's main page](https://www.reversebeacon.net/main.php). You will see that a new section has been added below the map, with plots showing the Average SNR over time by continent.
+
+## Installing from Source
+
+1. Clone the repository to your local machine using:
+
+    ```bash
+    git clone https://github.com/iqnite/rbn-pal
+    cd rbn-pal
+    ```
+
+2. Install the required dependencies:
+
+    ```bash
+    npm install
+    ```
+
+3. Build the extension:
+
+    ```bash
+     npm run build
+    ```
+
+4. Load the unpacked extension in your browser as described in the [Chromium-based Browsers](#chromium-based-browsers-chrome-edge-brave-etc) section above, selecting the `dist` folder created during the build process.
