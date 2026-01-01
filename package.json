@@ -12,12 +12,12 @@
     "devDependencies": {
         "@types/chrome": "^0.1.32",
         "@types/node": "^24.10.1",
-        "@types/plotly.js": "^3.0.8",
+        "@types/plotly.js": "^3.0.9",
         "archiver": "^7.0.1",
         "rimraf": "^6.1.2",
         "typescript": "^5.0.0"
     },
     "dependencies": {
-        "plotly.js": "^3.3.0"
+        "plotly.js": "^3.3.1"
     }
 }
