@@ -257,12 +257,10 @@ class ContinentSnrTracker {
 
     public static extractData(): DataRow[] | null {
         const regionRegex = /(.*) - (.*) - (.*) - (.*) - (.*)/;
-        const snrRegex = /([0-9]+)/;
-        const freqRegex = /([0-9]+).?[0-9]*/;
-        const seenNowRegex = /.*now.*/;
-        const spotsTable = document
-            .getElementById("id_spots")
-            ?.querySelector("tbody");
+        const snrRegex = /(-?[0-9]+)/;
+        const freqRegex = /([0-9]+(?:\.[0-9]+)?)/;
+        const seenNowRegex = /\bnow\b/i;
+        const spotsTable = document.getElementById("id_spots");
         const data: DataRow[] = [];
 
         if (!spotsTable) {
@@ -270,32 +268,50 @@ class ContinentSnrTracker {
             return null;
         }
 
-        for (const row of Array.from(spotsTable.rows)) {
-            if (row.classList.contains("spots")) {
-                const regionLink = row.children[0]?.lastElementChild;
-                if (!(regionLink instanceof HTMLAnchorElement)) continue;
-                const regionText = regionLink.title.match(regionRegex);
-                const snrText = row.children[7].textContent.match(snrRegex);
-                const freqText = row.children[4].textContent.match(freqRegex);
-                const seenText =
-                    row.children[10].textContent.match(seenNowRegex);
-                let continent = "??";
-                let snr = NaN;
-                let freq = NaN;
-                if (regionText) {
-                    continent = regionText[3];
-                }
-                if (snrText) {
-                    snr = Number(snrText[1]);
-                }
-                if (freqText) {
-                    freq = Number(freqText[1]);
-                }
-                if (!seenText) {
-                    continue; // Only consider spots seen "now"
-                }
-                data.push(new DataRow(continent, freq, snr));
+        // Current RBN rows are added dynamically as tr.spot directly under #id_spots.
+        // Keep a tbody fallback for older markup.
+        const liveRows = Array.from(
+            spotsTable.querySelectorAll<HTMLTableRowElement>(
+                "tr.spot, tr.spots",
+            ),
+        );
+        const fallbackRows = Array.from(
+            spotsTable.querySelector("tbody")?.rows ?? [],
+        );
+        const rows = liveRows.length > 0 ? liveRows : fallbackRows;
+
+        for (const row of rows) {
+            if (
+                !row.classList.contains("spot") &&
+                !row.classList.contains("spots")
+            ) {
+                continue;
             }
+
+            const regionLink = row.querySelector("td.de a.de");
+            if (!(regionLink instanceof HTMLAnchorElement)) continue;
+            if (row.children.length < 11) continue;
+
+            const regionText = regionLink.title.match(regionRegex);
+            const snrText = row.children[7].textContent?.match(snrRegex);
+            const freqText = row.children[4].textContent?.match(freqRegex);
+            const seenText = row.children[10].textContent?.match(seenNowRegex);
+            let continent = "??";
+            let snr = NaN;
+            let freq = NaN;
+            if (regionText) {
+                continent = regionText[3];
+            }
+            if (snrText) {
+                snr = Number(snrText[1]);
+            }
+            if (freqText) {
+                freq = Number(freqText[1]);
+            }
+            if (!seenText) {
+                continue; // Only consider spots seen "now"
+            }
+            data.push(new DataRow(continent, freq, snr));
         }
 
         return data;

@@ -1,6 +1,6 @@
 {
     "name": "rbn-pal",
-    "version": "0.3.0",
+    "version": "0.3.1",
     "description": "A set of utilities for reversebeacon.net",
     "scripts": {
         "build": "tsc && npm run copy-deps",
