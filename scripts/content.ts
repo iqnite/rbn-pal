@@ -1,3 +1,5 @@
+type PlotlyData = import("plotly.js").Data;
+
 interface SnrSnapshot {
     timestamp: Date;
     continent: string;
@@ -18,13 +20,13 @@ class ContinentSnrTracker {
     private getSnr(
         timestamp: Date,
         continent: string,
-        band: string
+        band: string,
     ): number | undefined {
         return this.snapshots.find(
             (s) =>
                 s.timestamp.getTime() === timestamp.getTime() &&
                 s.continent === continent &&
-                s.band === band
+                s.band === band,
         )?.avgSnr;
     }
 
@@ -32,7 +34,7 @@ class ContinentSnrTracker {
         timestamp: Date,
         continent: string,
         band: string,
-        avgSnr: number
+        avgSnr: number,
     ): void {
         this.snapshots.push({ timestamp, continent, band, avgSnr });
     }
@@ -53,8 +55,8 @@ class ContinentSnrTracker {
             new Set(
                 this.snapshots
                     .filter((s) => s.continent === continent)
-                    .map((s) => s.band)
-            )
+                    .map((s) => s.band),
+            ),
         );
     }
 
@@ -84,7 +86,7 @@ class ContinentSnrTracker {
             if (this.separateByBand) {
                 for (const band of bands) {
                     const avgSnrs = times.map(
-                        (t) => this.getSnr(t, continent, band) ?? NaN
+                        (t) => this.getSnr(t, continent, band) ?? NaN,
                     );
 
                     traces.push({
@@ -94,7 +96,7 @@ class ContinentSnrTracker {
                         mode: "lines+markers",
                         name: `${band}m`,
                         line: { color: ContinentSnrTracker.colorBand(band) },
-                    } as Plotly.Data);
+                    } as PlotlyData);
                 }
             } else {
                 // Combine all bands into a single trace
@@ -113,11 +115,11 @@ class ContinentSnrTracker {
                     mode: "lines+markers",
                     name: "All bands",
                     line: { color: "#1f77b4" },
-                } as Plotly.Data);
+                } as PlotlyData);
             }
 
             let continentDiv = document.getElementById(
-                `rbnpal-continent-snr-plot-${continent}`
+                `rbnpal-continent-snr-plot-${continent}`,
             ) as HTMLDivElement | null;
             if (!continentDiv) {
                 continentDiv =
@@ -139,7 +141,7 @@ class ContinentSnrTracker {
                 `rbnpal-continent-snr-plot-${continent}`,
                 traces,
                 layout,
-                { responsive: true }
+                { responsive: true },
             );
         }
 
@@ -148,7 +150,7 @@ class ContinentSnrTracker {
         if (uniqueTimes.length > 12) {
             const cutoffTime = uniqueTimes[uniqueTimes.length - 12];
             this.snapshots = this.snapshots.filter(
-                (s) => s.timestamp.getTime() >= cutoffTime.getTime()
+                (s) => s.timestamp.getTime() >= cutoffTime.getTime(),
             );
         }
 
@@ -229,7 +231,7 @@ class ContinentSnrTracker {
         checkbox.type = "checkbox";
         checkbox.checked = this.separateByBand;
         checkbox.addEventListener("change", (e) =>
-            this.updateBandSeparation(e)
+            this.updateBandSeparation(e),
         );
         label.appendChild(checkbox);
         label.appendChild(document.createTextNode("Separate by band"));
@@ -240,7 +242,7 @@ class ContinentSnrTracker {
     public static updateContinentDisplay(event: Event, continent: string) {
         const checkbox = event.target as HTMLInputElement;
         const continentDiv = document.getElementById(
-            `rbnpal-continent-snr-plot-${continent}`
+            `rbnpal-continent-snr-plot-${continent}`,
         );
         if (continentDiv) {
             continentDiv.style.display = checkbox.checked ? "block" : "none";
@@ -378,7 +380,7 @@ class DataRow {
     constructor(
         public continent: string,
         public freq: number,
-        public snr: number
+        public snr: number,
     ) {}
 }
 
