@@ -10,9 +10,13 @@ Right now, RBN Pal is in its early stages of development. Future updates will in
 
 [![Firefox Add-ons](.github/readme-images/ff-addon-badge.png)](https://addons.mozilla.org/addon/rbn-pal/)
 
-### Chromium-based Browsers (Chrome, Edge, Brave, etc.)
+### Microsoft Edge
 
-1. Go to the [latest release](https://github.com/iqnite/rbn-pal/releases/latest) and download the ZIP file from the "Assets" section.
+<a href="https://microsoftedge.microsoft.com/addons/detail/jilcjffpfegkhgajlggkigmappjalcfm"><img src=".github/readme-images/ms-addon-badge.png" alt="Microsoft Edge Add-ons" width="200" /></a>
+
+### Other Chromium-based Browsers (Chrome, Opera, Brave, etc.)
+
+1. Go to the [latest release](https://github.com/iqnite/rbn-pal/releases/latest) and download the first ZIP file from the "Assets" section.
 2. Extract the downloaded ZIP file to a folder on your computer.
 3. Open your browser and navigate to `chrome://extensions/`.
 4. Look for the "Developer mode" toggle (in the top right or bottom left corner) and enable it.
@@ -46,4 +50,4 @@ To see the extension in action, open up [the Reverse Beacon Network's main page]
      npm run build
     ```
 
-4. Load the unpacked extension in your browser as described in the [Chromium-based Browsers](#chromium-based-browsers-chrome-edge-brave-etc) section above, selecting the `dist` folder created during the build process.
+4. Load the unpacked extension in your browser as described in the [Chromium-based Browsers](#other-chromium-based-browsers-chrome-opera-brave-etc) section above, selecting the `dist` folder created during the build process.
