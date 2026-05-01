@@ -18,6 +18,6 @@
         "typescript": "^6.0.2"
     },
     "dependencies": {
-        "plotly.js": "^3.4.0"
+        "plotly.js": "^3.5.0"
     }
 }
