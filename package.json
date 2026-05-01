@@ -10,7 +10,7 @@
         "clean": "rimraf dist"
     },
     "devDependencies": {
-        "@types/chrome": "^0.1.38",
+        "@types/chrome": "^0.1.40",
         "@types/node": "^25.5.2",
         "@types/plotly.js": "^3.0.10",
         "archiver": "^7.0.1",
